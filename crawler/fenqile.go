@@ -1,10 +1,9 @@
-package main
+package crawler
 
 import (
 	"fmt"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
-	"io/ioutil"
 	"log"
 	"time"
 )
@@ -25,7 +24,7 @@ import (
 
 //正文为3张图片即可
 
-func main() {
+func CrawlerData() map[string][]byte {
 	opts := []selenium.ServiceOption{}
 	caps := selenium.Capabilities{
 		"browserName": "chrome",
@@ -56,7 +55,7 @@ func main() {
 	}
 	caps.AddChrome(chromeCaps)
 	// 启动chromedriver，端口号可自定义
-	service, err := selenium.NewChromeDriverService("D:/go_project/crawler_template/opt/google/chrome/chromedriver.exe", 9515, opts...)
+	service, err := selenium.NewChromeDriverService("E:/chromedriver.exe", 9515, opts...)
 	if err != nil {
 		log.Printf("Error starting the ChromeDriver server: %v", err)
 	}
@@ -68,15 +67,16 @@ func main() {
 	}
 
 	result := crawlerFenqile(webDriver)
+
+	fileMap := make(map[string][]byte)
+	date := time.Now().Format("20060102")
 	for i, v := range result {
-		err = ioutil.WriteFile(fmt.Sprintf("test%d.jpg", i), v, 0644)
-	}
-	if err != nil {
-		panic(err)
+
+		fileMap[fmt.Sprintf("%s/%d.jpg", date, i)] = v
 
 	}
-
 	defer service.Stop()
+	return fileMap
 }
 
 func crawlerFenqile(webDriver selenium.WebDriver) [3][]byte {

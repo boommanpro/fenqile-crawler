@@ -1,6 +1,8 @@
 application:
 
 
+  web-driver:
+    path:
 
 
   server-chan:
@@ -8,3 +10,9 @@ application:
     secret-key: 123
     debug: false
     proxy: false
+
+  tencent-cos:
+    base-url: 123
+    secret-id: 123
+    secret-key: 123
+    debug: false

@@ -1,7 +1,9 @@
-package main
+package cos
 
 import (
+	"bytes"
 	"context"
+	"fenqile-crawler/config"
 	"net/http"
 	"net/url"
 
@@ -9,28 +11,34 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5/debug"
 )
 
-func main() {
+func UpdateFile(tentcentCos config.TentcentCos, fileMap map[string][]byte) error {
 	var err error
-	u, _ := url.Parse("https://fenqile-1252017882.cos.ap-beijing.myqcloud.com")
+	u, _ := url.Parse(tentcentCos.BaseUrl)
 	b := &cos.BaseURL{BucketURL: u}
+
+	tencentTransport := &cos.AuthorizationTransport{
+		SecretID:  tentcentCos.SecretId,
+		SecretKey: tentcentCos.SecretKey,
+	}
+	if tentcentCos.Debug {
+		tencentTransport.Transport = &debug.DebugRequestTransport{
+			RequestHeader: true,
+			// Notice when put a large file and set need the request body, might happend out of memory error.
+			RequestBody:    true,
+			ResponseHeader: true,
+			ResponseBody:   true,
+		}
+	}
 	c := cos.NewClient(b, &http.Client{
-		Transport: &cos.AuthorizationTransport{
-			SecretID:  "xxx",
-			SecretKey: "xx",
-			Transport: &debug.DebugRequestTransport{
-				RequestHeader: true,
-				// Notice when put a large file and set need the request body, might happend out of memory error.
-				RequestBody:    false,
-				ResponseHeader: true,
-				ResponseBody:   true,
-			},
-		},
+		Transport: tencentTransport,
 	})
 
-	// Case3 put object by local file path
-	_, err = c.Object.PutFromFile(context.Background(), "20191013/test4.jpg", "test3.jpg", nil)
-	if err != nil {
-		panic(err)
+	for k, v := range fileMap {
+		_, err = c.Object.Put(context.Background(), k, bytes.NewReader(v), nil)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 
 }
