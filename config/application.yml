@@ -1,0 +1,10 @@
+application:
+
+
+
+
+  server-chan:
+    server: https://sc.ftqq.com/
+    secret-key: 123
+    debug: false
+    proxy: false
