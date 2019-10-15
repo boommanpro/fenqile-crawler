@@ -6,17 +6,36 @@ import (
 	"fenqile-crawler/crawler"
 	"fenqile-crawler/serverChan"
 	"fmt"
+	"github.com/robfig/cron/v3"
+	"log"
 )
 
+var yml string = "config/application.yml"
+
 func main() {
-	fileMap := crawler.CrawlerData()
-	tentcentCos := config.GetTencentCosForYml("config/application.yml")
+	log.Println("Starting...")
+
+	startTask()
+	forYml := config.GetCronForYml(yml)
+
+	// 定义一个cron运行器
+	c := cron.New()
+
+	c.AddFunc(forYml.CrawlerCron, startTask)
+
+	c.Start()
+	select {}
+}
+
+func startTask() {
+	tentcentCos := config.GetTencentCosForYml(yml)
+	serverChanConfig := config.GetServerChanForYml(yml)
+	crawlerConfig := config.GetCrawlerForYml(yml)
+	fileMap := crawler.CrawlerData(*crawlerConfig)
 	err := cos.UpdateFile(*tentcentCos, fileMap)
 	if err != nil {
 		fmt.Printf("%s", err)
 	}
-
-	serverChanConfig := config.GetServerChanForYml("config/application.yml")
 
 	sendMsg := ""
 	for k, _ := range fileMap {
@@ -24,4 +43,5 @@ func main() {
 	}
 
 	serverChan.SendMessage(*serverChanConfig, "分期乐信息爬虫", sendMsg)
+	fmt.Printf("发送信息成功")
 }

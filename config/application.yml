@@ -1,8 +1,11 @@
 application:
 
 
-  web-driver:
-    path:
+  cron:
+    crawler-cron: "0 0 9,23 * * ? "
+
+  crawler:
+    path: E:/123/chromedriver.exe
 
 
   server-chan:

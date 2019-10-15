@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"fenqile-crawler/config"
 	"fmt"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
@@ -24,7 +25,7 @@ import (
 
 //正文为3张图片即可
 
-func CrawlerData() map[string][]byte {
+func CrawlerData(crawler config.Crawler) map[string][]byte {
 	opts := []selenium.ServiceOption{}
 	caps := selenium.Capabilities{
 		"browserName": "chrome",
@@ -42,7 +43,10 @@ func CrawlerData() map[string][]byte {
 		Prefs: prefs,
 		Path:  "",
 		Args: []string{
+			//linux 必须要的参数配置
 			"--headless",
+			//linux 必须要的参数配置
+			"--no-sandbox",
 			//"--auto-open-devtools-for-tabs",
 		},
 		MobileEmulation: &chrome.MobileEmulation{
@@ -55,7 +59,7 @@ func CrawlerData() map[string][]byte {
 	}
 	caps.AddChrome(chromeCaps)
 	// 启动chromedriver，端口号可自定义
-	service, err := selenium.NewChromeDriverService("E:/chromedriver.exe", 9515, opts...)
+	service, err := selenium.NewChromeDriverService(crawler.Path, 9515, opts...)
 	if err != nil {
 		log.Printf("Error starting the ChromeDriver server: %v", err)
 	}

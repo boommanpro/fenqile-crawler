@@ -16,6 +16,14 @@ type TentcentCos struct {
 	Debug     bool   `yaml:"debug"`
 }
 
+type Crawler struct {
+	Path string `yaml:"path"`
+}
+
+type Cron struct {
+	CrawlerCron string `yaml:"crawler-cron"`
+}
+
 func GetServerChanForYml(path string) *ServerChan {
 	provider, err := config.NewYAML(config.File(path))
 	if err != nil {
@@ -40,4 +48,30 @@ func GetTencentCosForYml(path string) *TentcentCos {
 		panic(err) // handle error
 	}
 	return &tencentCos
+}
+
+func GetCrawlerForYml(path string) *Crawler {
+	provider, err := config.NewYAML(config.File(path))
+	if err != nil {
+		panic(err) // handle error
+	}
+
+	var crawler Crawler
+	if err := provider.Get("application.crawler").Populate(&crawler); err != nil {
+		panic(err) // handle error
+	}
+	return &crawler
+}
+
+func GetCronForYml(path string) *Cron {
+	provider, err := config.NewYAML(config.File(path))
+	if err != nil {
+		panic(err) // handle error
+	}
+
+	var cron Cron
+	if err := provider.Get("application.cron").Populate(&cron); err != nil {
+		panic(err) // handle error
+	}
+	return &cron
 }
